@@ -6,9 +6,18 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour, IBeforeUpdate
 {
     [SerializeField] private float moveSpeed = 6;
-    private float horizontal;
+    [SerializeField] private float jumpForce = 1000;
+    [Networked] private NetworkButtons buttonsPrev { get; set; }
+    
     private Rigidbody2D rigid;
+    private float horizontal;
 
+    private enum PlayerInputButtons
+    {
+        None,
+        Jump
+    }
+    
     public override void Spawned()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -30,13 +39,26 @@ public class PlayerController : NetworkBehaviour, IBeforeUpdate
         if (Runner.TryGetInputForPlayer<PlayerData>(Object.InputAuthority, out var input))
         {
             rigid.velocity = new Vector2(input.HorizontalInput * moveSpeed, rigid.velocity.y);
+            CheckJumpInput(input);
         }
+    }
+
+    private void CheckJumpInput(PlayerData input)
+    {
+        var pressed = input.NetworkButtons.GetPressed(buttonsPrev);
+        if (pressed.WasPressed(buttonsPrev, PlayerInputButtons.Jump))
+        {
+            rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Force);
+        }
+
+        buttonsPrev = input.NetworkButtons;
     }
 
     public PlayerData GetPlayerNetworkInput()
     {
         PlayerData data = new PlayerData();
         data.HorizontalInput = horizontal;
+        data.NetworkButtons.Set(PlayerInputButtons.Jump, Input.GetKey(KeyCode.Space));
         return data;
     }
 }
