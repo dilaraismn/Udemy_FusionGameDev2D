@@ -398,6 +398,7 @@ MonoBehaviour:
   lobbyPanels:
   - {fileID: 3481383399912595500}
   - {fileID: 3481383399001504112}
+  loadingCanvasControllerPrefab: {fileID: 5296609435473881524, guid: 4c5ed6d282bd24f429ff463afb406c14, type: 3}
 --- !u!4 &1175730062
 Transform:
   m_ObjectHideFlags: 0
